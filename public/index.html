@@ -36,9 +36,9 @@
 
         //player ship
         player = this.physics.add.image(400, 500, "ship");
-        player.body.maxVelocity.set(800);
-        player.setDrag(500);
-        player.setAngularDrag(500);
+        player.body.maxVelocity.set(200);
+        // player.setDrag(300);
+        // player.setAngularDrag(400);
 
         //controls
         cursors = this.input.keyboard.createCursorKeys();
@@ -47,9 +47,9 @@
       function update() {
         //set initial velocity for player ship
 
-        player.body.velocity.x = 0;
-        player.body.velocity.y = 0;
-        player.body.angularVelocity = 0;
+        // player.body.velocity.x = 0;
+        // player.body.velocity.y = 0;
+        // player.body.angularVelocity = 0;
 
         if (cursors.left.isDown) {
           player.body.angularVelocity = -200;
@@ -59,12 +59,17 @@
           player.setAngularVelocity(0);
         }
         if (cursors.up.isDown) {
-          console.log(player.body.speed);
           this.physics.velocityFromRotation(
             player.rotation - 1.5,
-            4000,
+            player.body.speed + 30,
             player.body.acceleration
           );
+        } else {
+          player.setAcceleration(0);
+        }
+        if (cursors.down.isDown) {
+          player.setDrag(100);
+          player.setAngularDrag(400);
         }
       }
     </script>
