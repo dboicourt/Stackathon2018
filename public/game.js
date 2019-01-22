@@ -1,3 +1,25 @@
+let playerItems = {
+  wallet: 1000,
+  cargo: [
+    (food = {
+      name: "Food",
+      quantity: 0
+    }),
+    (metal = {
+      name: "Metal",
+      quantity: 0
+    }),
+    (medicine = {
+      name: "Medicine",
+      quantity: 0
+    }),
+    (components = {
+      name: "Components",
+      quantity: 0
+    })
+  ]
+};
+
 let player;
 let cursors;
 let bullets;
@@ -5,6 +27,45 @@ let lastFired = 0;
 let fire;
 let planet;
 let land;
+let button1;
+let button2;
+let button3;
+let button4;
+let button5;
+let button6;
+let button7;
+let button8;
+let button9;
+
+class StartMenu extends Phaser.Scene {
+  constructor() {
+    super({ key: "startScreen" });
+  }
+  preload() {
+    this.load.image("space", "assets/SpaceBackdrop.png");
+    this.load.image("menu", "assets/cantinaMenu.png");
+  }
+  create() {
+    this.add.image(400, 400, "space");
+    this.add.image(400, 400, "menu");
+    this.add.text(150, 160, "WELCOME TO THE VERSE", {
+      fontSize: "42px",
+      fill: "#fff"
+    });
+    this.add.text(260, 630, "Press Space to Start", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+  }
+  update() {
+    if (fire.isDown) {
+      this.scene.start("startPlanet");
+    }
+  }
+}
+
+//******************************Space View******************** */
 
 class StartPlanet extends Phaser.Scene {
   constructor() {
@@ -76,7 +137,7 @@ class StartPlanet extends Phaser.Scene {
     });
 
     //player ship
-    player = this.physics.add.image(400, 500, "ship");
+    player = this.physics.add.image(400, 400, "ship");
     player.body.maxVelocity.set(200);
     this.cameras.main.startFollow(player);
 
@@ -144,11 +205,6 @@ class StartPlanet extends Phaser.Scene {
 
 //***************************** Planet Menu********************* */
 
-let button1;
-let button2;
-let button3;
-let button4;
-
 class Menu extends Phaser.Scene {
   constructor() {
     super({ key: "menu" });
@@ -201,6 +257,9 @@ class Menu extends Phaser.Scene {
   update() {
     if (button1.isDown) {
       this.scene.start("cantina");
+    }
+    if (button2.isDown) {
+      this.scene.start("market");
     }
     if (button3.isDown) {
       this.scene.start("shipyard");
@@ -259,6 +318,29 @@ class Cantina extends Phaser.Scene {
 
 //****************************Shipyard*************************** */
 
+let bigAlInventory = [
+  (heavyCannon = {
+    name: "Heavy Plasma Cannon",
+    class: "fixedWeapon",
+    price: 30000
+  }),
+  (lazTurret = {
+    name: "Light Laser Turret",
+    class: "turretWeapon",
+    price: 45000
+  }),
+  (mediumHauler = {
+    name: "YT1300 Medium Freighter",
+    class: "ship",
+    price: 7000000
+  }),
+  (lightFighter = {
+    name: "Swordfish Light Fighter",
+    class: "ship",
+    price: 3250000
+  })
+];
+
 class Shipyard extends Phaser.Scene {
   constructor() {
     super({ key: "shipyard" });
@@ -271,10 +353,260 @@ class Shipyard extends Phaser.Scene {
   create() {
     this.add.image(400, 400, "planetMenuBG");
     this.add.image(400, 400, "cantinaMenu");
+    this.add.text(235, 130, "Big Al's Shipyard", {
+      fontSize: "32px",
+      fill: "#fff"
+    });
+    this.add.text(290, 180, `Account: $${playerItems.wallet}`, {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    let itemSpacing = 0;
+    let itemNum = 1;
+    bigAlInventory.forEach(item => {
+      this.add.text(150, 240 + itemSpacing, `${itemNum}> ${item.name}`, {
+        fontSize: "18px"
+      });
+      itemNum++;
+      itemSpacing = itemSpacing + 35;
+    });
+    let priceSpacing = 0;
+    bigAlInventory.forEach(item => {
+      this.add.text(560, 240 + priceSpacing, `$${item.price}`, {
+        fontSize: "18px"
+      });
+      priceSpacing = priceSpacing + 35;
+    });
+    this.add.image(400, 640, "planetMenuButton");
+    this.add.text(340, 627, "9> Leave", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+
+    //controls
+
+    button1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+    button2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+    button3 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+    button4 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+    button9 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NINE);
   }
-  update() {}
+  update() {
+    if (button1.isDown && playerItems.wallet < bigAlInventory[0].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    }
+    if (button2.isDown && playerItems.wallet < bigAlInventory[1].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    }
+    if (button3.isDown && playerItems.wallet < bigAlInventory[2].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    }
+    if (button4.isDown && playerItems.wallet < bigAlInventory[3].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    }
+    if (button9.isDown) {
+      this.scene.start("menu");
+    }
+  }
 }
 
+//*********************************Market**************************** */
+
+let shopInventory = [
+  (food = {
+    name: "Food",
+    price: 150
+  }),
+  (metal = {
+    name: "Metal",
+    price: 350
+  }),
+  (medicine = {
+    name: "Medicine",
+    price: 575
+  }),
+  (components = {
+    name: "Components",
+    price: 435
+  })
+];
+
+class Market extends Phaser.Scene {
+  constructor() {
+    super({ key: "market" });
+  }
+  preload() {
+    this.load.image("planetMenuBG", "assets/planetMenuBG.png");
+    this.load.image("cantinaMenu", "assets/cantinaMenu.png");
+    this.load.image("planetMenuButton", "assets/menuButton.png");
+  }
+  create() {
+    this.add.image(400, 400, "planetMenuBG");
+    this.add.image(400, 400, "cantinaMenu");
+    this.add.text(265, 130, "Astoria Market", {
+      fontSize: "32px",
+      fill: "#fff"
+    });
+    this.add.text(290, 180, `Account: $${playerItems.wallet}`, {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    let cargoSpacing = 0;
+    let cargoNum = 1;
+    playerItems.cargo.forEach(item => {
+      this.add.text(150, 240 + cargoSpacing, `${cargoNum}> ${item.name}`, {
+        fontSize: "18px",
+        fill: "#fff"
+      });
+      this.add.text(560, 240 + cargoSpacing, `${item.quantity}`, {
+        fontSize: "18px",
+        fill: "#fff"
+      });
+      cargoNum++;
+      cargoSpacing = cargoSpacing + 35;
+    });
+
+    this.add.text(
+      150,
+      380,
+      "--------------------------------------------------"
+    );
+
+    let inventorySpacing = 0;
+    let invNum = 5;
+    shopInventory.forEach(item => {
+      this.add.text(150, 420 + inventorySpacing, `${invNum}> ${item.name}`, {
+        fontSize: "18px",
+        fill: "#fff"
+      });
+      this.add.text(560, 420 + inventorySpacing, `$${item.price}`, {
+        fontSize: "18px",
+        fill: "#fff"
+      });
+      invNum++;
+      inventorySpacing = inventorySpacing + 35;
+    });
+    this.add.image(400, 640, "planetMenuButton");
+    this.add.text(340, 627, "9> Leave", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    //controls
+    button1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+    button2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+    button3 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+    button4 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
+    button5 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FIVE);
+    button6 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SIX);
+    button7 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SEVEN);
+    button8 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.EIGHT);
+    button9 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NINE);
+  }
+
+  update() {
+    //sell items
+    if (button1.isDown && playerItems.cargo[0].quantity < 1) {
+      this.add.text(302, 580, "Insufficient Cargo", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button1.isDown) {
+      playerItems.wallet = playerItems.wallet + shopInventory[0].price;
+      playerItems.cargo[0].quantity--;
+      this.scene.start("market");
+    }
+    if (button2.isDown && playerItems.cargo[1].quantity < 1) {
+      this.add.text(302, 580, "Insufficient Cargo", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button2.isDown) {
+      playerItems.wallet = playerItems.wallet + shopInventory[1].price;
+      playerItems.cargo[1].quantity--;
+      this.scene.start("market");
+    }
+    if (button3.isDown && playerItems.cargo[2].quantity < 1) {
+      this.add.text(302, 580, "Insufficient Cargo", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button3.isDown) {
+      playerItems.wallet = playerItems.wallet + shopInventory[2].price;
+      playerItems.cargo[2].quantity--;
+      this.scene.start("market");
+    }
+    if (button4.isDown && playerItems.cargo[3].quantity < 1) {
+      this.add.text(302, 580, "Insufficient Cargo", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button4.isDown) {
+      playerItems.wallet = playerItems.wallet + shopInventory[3].price;
+      playerItems.cargo[3].quantity--;
+      this.scene.start("market");
+    }
+
+    //buy items
+
+    if (button5.isDown && playerItems.wallet < shopInventory[0].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button5.isDown) {
+      playerItems.wallet = playerItems.wallet - shopInventory[0].price;
+      playerItems.cargo[0].quantity++;
+      this.scene.start("market");
+    }
+    if (button6.isDown && playerItems.wallet < shopInventory[1].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button6.isDown) {
+      playerItems.wallet = playerItems.wallet - shopInventory[1].price;
+      playerItems.cargo[1].quantity++;
+      this.scene.start("market");
+    }
+    if (button7.isDown && playerItems.wallet < shopInventory[2].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button7.isDown) {
+      playerItems.wallet = playerItems.wallet - shopInventory[2].price;
+      playerItems.cargo[2].quantity++;
+      this.scene.start("market");
+    }
+    if (button8.isDown && playerItems.wallet < shopInventory[3].price) {
+      this.add.text(302, 580, "Insufficient Funds", {
+        fontSize: "18px",
+        fill: "#f00"
+      });
+    } else if (button8.isDown) {
+      playerItems.wallet = playerItems.wallet - shopInventory[3].price;
+      playerItems.cargo[3].quantity++;
+      this.scene.start("market");
+    }
+    //return to last scene
+
+    if (button9.isDown) {
+      this.scene.start("menu");
+    }
+  }
+}
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -282,7 +614,7 @@ const config = {
   physics: {
     default: "arcade"
   },
-  scene: [Cantina, StartPlanet, Menu, Shipyard]
+  scene: [StartMenu, Market, Shipyard, Cantina, StartPlanet, Menu]
 };
 
 let game = new Phaser.Game(config);
