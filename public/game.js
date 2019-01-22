@@ -144,6 +144,11 @@ class StartPlanet extends Phaser.Scene {
 
 //***************************** Planet Menu********************* */
 
+let button1;
+let button2;
+let button3;
+let button4;
+
 class Menu extends Phaser.Scene {
   constructor() {
     super({ key: "menu" });
@@ -170,7 +175,104 @@ class Menu extends Phaser.Scene {
       fontSize: "32px",
       fill: "#fff"
     });
+    this.add.text(170, 413, "1> Cantina", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    this.add.text(470, 413, "2> Market", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    this.add.text(170, 485, "3> Shipyard", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    this.add.text(470, 485, "4> Lift Off", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+
+    //controls
+    button1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+    button2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+    button3 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.THREE);
+    button4 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.FOUR);
   }
+  update() {
+    if (button1.isDown) {
+      this.scene.start("cantina");
+    }
+    if (button3.isDown) {
+      this.scene.start("shipyard");
+    }
+    if (button4.isDown) {
+      this.scene.start("startPlanet");
+    }
+  }
+}
+
+//********************************** Cantina *********************** */
+
+class Cantina extends Phaser.Scene {
+  constructor() {
+    super({ key: "cantina" });
+  }
+  preload() {
+    this.load.image("planetMenuBG", "assets/planetMenuBG.png");
+    this.load.image("cantinaMenu", "assets/cantinaMenu.png");
+    this.load.image("planetMenuButton", "assets/menuButton.png");
+  }
+  create() {
+    this.add.image(400, 400, "planetMenuBG");
+    this.add.image(400, 400, "cantinaMenu");
+    this.add.text(260, 130, "The Foggy Cove", {
+      fontSize: "32px",
+      fill: "#fff"
+    });
+    this.add.text(
+      140,
+      180,
+      'You step into "The Foggy Cove", which could be\nmore accurately described as "The Soggy Cove".\nThis dive is the closest watering hole to both\nthe spaceport and the tide water. The smell of\nsalt and stale ion emissions fill the air as you\nsurvey a motley gathering of strung out spacers.\n\nAs you make your way to the bar you draw the gaze\nof various denizens scattered haphazardly around\nthe room. Some hostile, some indifferent, either\nway you pointedly avoid eye contact as you make\nyour way towards a seat.',
+      {
+        fontSize: "18px",
+        fill: "#fff"
+      }
+    );
+    this.add.image(550, 640, "planetMenuButton");
+    this.add.image(250, 640, "planetMenuButton");
+    this.add.text(490, 627, "2> Leave", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+
+    //controls
+
+    button1 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.ONE);
+    button2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
+  }
+  update() {
+    if (button2.isDown) {
+      this.scene.start("menu");
+    }
+  }
+}
+
+//****************************Shipyard*************************** */
+
+class Shipyard extends Phaser.Scene {
+  constructor() {
+    super({ key: "shipyard" });
+  }
+  preload() {
+    this.load.image("planetMenuBG", "assets/planetMenuBG.png");
+    this.load.image("cantinaMenu", "assets/cantinaMenu.png");
+    this.load.image("planetMenuButton", "assets/menuButton.png");
+  }
+  create() {
+    this.add.image(400, 400, "planetMenuBG");
+    this.add.image(400, 400, "cantinaMenu");
+  }
+  update() {}
 }
 
 const config = {
@@ -180,7 +282,7 @@ const config = {
   physics: {
     default: "arcade"
   },
-  scene: [Menu]
+  scene: [Cantina, StartPlanet, Menu, Shipyard]
 };
 
 let game = new Phaser.Game(config);
