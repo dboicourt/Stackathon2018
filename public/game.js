@@ -36,6 +36,9 @@ let button6;
 let button7;
 let button8;
 let button9;
+let drinks = -1;
+
+//************************Start Menu************** */
 
 class StartMenu extends Phaser.Scene {
   constructor() {
@@ -44,6 +47,7 @@ class StartMenu extends Phaser.Scene {
   preload() {
     this.load.image("space", "assets/SpaceBackdrop.png");
     this.load.image("menu", "assets/cantinaMenu.png");
+    this.load.image("logo", "assets/original.png");
   }
   create() {
     this.add.image(400, 400, "space");
@@ -52,7 +56,47 @@ class StartMenu extends Phaser.Scene {
       fontSize: "42px",
       fill: "#fff"
     });
+    this.add.image(400, 400, "logo");
     this.add.text(260, 630, "Press Space to Start", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
+    fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+  }
+  update() {
+    if (fire.isDown) {
+      this.scene.start("controlScreen");
+    }
+  }
+}
+
+//***********************Control Screen************ */
+
+class ControlScreen extends Phaser.Scene {
+  constructor() {
+    super({ key: "controlScreen" });
+  }
+  preload() {
+    this.load.image("space", "assets/SpaceBackdrop.png");
+    this.load.image("menu", "assets/planetMenu.png");
+  }
+  create() {
+    this.add.image(400, 400, "space");
+    this.add.image(400, 400, "menu");
+    this.add.text(320, 280, "Controls", {
+      fontSize: "32px",
+      fill: "#fff"
+    });
+    this.add.text(
+      255,
+      350,
+      "Move Ship with Arrow Keys\n\n Fire Weapon with Space\n\n   Press 'E' to Land",
+      {
+        fontSize: "18px",
+        fill: "#fff"
+      }
+    );
+    this.add.text(240, 490, "Press Space to Continue", {
       fontSize: "24px",
       fill: "#fff"
     });
@@ -299,10 +343,38 @@ class Cantina extends Phaser.Scene {
     );
     this.add.image(550, 640, "planetMenuButton");
     this.add.image(250, 640, "planetMenuButton");
+    this.add.text(190, 627, "1> Drink", {
+      fontSize: "24px",
+      fill: "#fff"
+    });
     this.add.text(490, 627, "2> Leave", {
       fontSize: "24px",
       fill: "#fff"
     });
+    let drinksArr = ["first", "second", "third", "fourth", "fifth"];
+    if (drinks >= 0 && drinks < 5) {
+      this.add.text(
+        140,
+        430,
+        `The bartender hands you your ${
+          drinksArr[drinks]
+        } drink,\nwhich you down with gusto`,
+        {
+          fontSize: "18px",
+          fill: "#fff"
+        }
+      );
+    } else if (drinks >= 5) {
+      this.add.text(
+        140,
+        430,
+        `The bartender cuts you off and throws your drunk\nslurring self out into the street. You stumble to\nyour ship and promptly fire up the reactor core.`,
+        {
+          fontSize: "18px",
+          fill: "#fff"
+        }
+      );
+    }
 
     //controls
 
@@ -310,8 +382,16 @@ class Cantina extends Phaser.Scene {
     button2 = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.TWO);
   }
   update() {
-    if (button2.isDown) {
+    if (button1.isDown && drinks < 5) {
+      drinks++;
+      this.scene.start("cantina");
+    } else if (button1.isDown) {
+      this.scene.start("badChoice");
+    }
+    if (button2.isDown && drinks < 5) {
       this.scene.start("menu");
+    } else if (button2.isDown) {
+      this.scene.start("badChoice");
     }
   }
 }
@@ -607,6 +687,141 @@ class Market extends Phaser.Scene {
     }
   }
 }
+
+//*****************************BadChoice********************* */
+class BadChoice extends Phaser.Scene {
+  constructor() {
+    super({ key: "badChoice" });
+  }
+
+  preload() {
+    //image assets
+    this.load.image("space", "assets/SpaceBackdrop.png");
+    this.load.image("startPlanet", "assets/StartPlanet.png");
+    this.load.image("bullet", "assets/bullet.png");
+    this.load.image("ship", "assets/cargoShip.png", {
+      frameWidth: 32,
+      frameHeight: 32
+    });
+  }
+
+  create() {
+    //bullet
+
+    let Bullet = new Phaser.Class({
+      Extends: Phaser.Physics.Arcade.Image,
+
+      initialize: function Bullet(scene) {
+        Phaser.Physics.Arcade.Image.call(this, scene, 0, 0, "bullet");
+
+        this.speed = 500;
+        this.lifespan = 1000;
+
+        this._temp = new Phaser.Math.Vector2();
+      },
+
+      fire: function(player) {
+        this.lifespan = 1000;
+
+        this.setActive(true);
+        this.setVisible(true);
+        this.setAngle(player.body.rotation);
+        this.setPosition(player.x, player.y);
+        this.body.reset(player.x, player.y);
+        let angle = Phaser.Math.DegToRad(player.body.rotation);
+        this.scene.physics.velocityFromRotation(
+          angle - 1.56,
+          this.speed,
+          this.body.velocity
+        );
+        this.body.velocity.x *= 2;
+        this.body.velocity.y *= 2;
+      },
+
+      update: function(time, delta) {
+        this.lifespan -= delta;
+
+        if (this.lifespan <= 0) {
+          this.setActive(false);
+          this.setVisible(false);
+          this.body.stop();
+        }
+      }
+    });
+
+    this.add.image(400, 400, "space").setScrollFactor(0);
+    planet = this.add.image(400, 400, "startPlanet");
+
+    bullets = this.physics.add.group({
+      classType: Bullet,
+      maxSize: 30,
+      runChildUpdate: true
+    });
+
+    //player ship
+    player = this.physics.add.image(400, 400, "ship");
+    player.body.maxVelocity.set(200);
+    this.cameras.main.startFollow(player);
+
+    //controls
+    cursors = this.input.keyboard.createCursorKeys();
+    fire = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+    land = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+  }
+
+  update(time) {
+    //controls for player ship
+    if (cursors.right.isDown) {
+      player.body.angularVelocity = -200;
+    } else if (cursors.left.isDown) {
+      player.body.angularVelocity = 200;
+    } else {
+      player.setAngularVelocity(0);
+    }
+    if (cursors.up.isDown) {
+      this.physics.velocityFromRotation(
+        player.rotation - 1.57,
+        player.body.speed + 4000,
+        player.body.acceleration
+      );
+    } else {
+      this.physics.velocityFromRotation(
+        player.rotation - 1.57,
+        player.body.speed + 4000,
+        player.body.acceleration
+      );
+    }
+
+    //fire control
+    if (fire.isDown && time > lastFired) {
+      let bullet = bullets.get();
+
+      if (bullet) {
+        bullet.fire(player);
+
+        lastFired = time + 400;
+      }
+    }
+
+    //Check for planet landing
+
+    function checkOverlap(spriteA, spriteB) {
+      let boundsA = spriteA.getBounds();
+      let boundsB = spriteB.getBounds();
+
+      return Phaser.Geom.Intersects.RectangleToRectangle(boundsA, boundsB);
+    }
+
+    if (
+      checkOverlap(player, planet) &&
+      player.body.speed < 0.5 &&
+      land.isDown
+    ) {
+      this.scene.start("menu");
+    }
+  }
+}
+
 const config = {
   type: Phaser.AUTO,
   width: 800,
@@ -614,7 +829,16 @@ const config = {
   physics: {
     default: "arcade"
   },
-  scene: [StartMenu, Market, Shipyard, Cantina, StartPlanet, Menu]
+  scene: [
+    StartMenu,
+    Cantina,
+    BadChoice,
+    ControlScreen,
+    Market,
+    Shipyard,
+    StartPlanet,
+    Menu
+  ]
 };
 
 let game = new Phaser.Game(config);
