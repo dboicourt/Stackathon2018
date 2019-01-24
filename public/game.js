@@ -19,6 +19,7 @@ let playerItems = {
     })
   ]
 };
+//test
 
 let player;
 let cursors;
@@ -689,6 +690,7 @@ class Market extends Phaser.Scene {
 }
 
 //*****************************BadChoice********************* */
+
 class BadChoice extends Phaser.Scene {
   constructor() {
     super({ key: "badChoice" });
